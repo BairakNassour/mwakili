@@ -4,7 +4,7 @@ import 'package:mwakili/component/general_url.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthController {
- 
+  
   final Dio _dio = Dio();
 
   Future<Map<String, dynamic>> registerUser({
@@ -37,7 +37,7 @@ class AuthController {
     }
   }
 
- Future<Map<String, dynamic>> registerLawyer({
+  Future<Map<String, dynamic>> registerLawyer({
     required String name,
     required String email,
     required String phone,
@@ -62,7 +62,7 @@ class AuthController {
         "password": password,
       };
 
-     for (int i = 0; i < specialties.length; i++) {
+      for (int i = 0; i < specialties.length; i++) {
         dataMap["specialties[$i]"] = specialties[i];
       }
 
@@ -239,12 +239,12 @@ class AuthController {
       });
 
       Response response = await _dio.post(
-        "$baseUrl/update-avatar", // تأكد أن هذا الرابط يطابق الـ Route في لارافيل
+        "$baseUrl/update-avatar",
         data: formData,
         options: Options(
           headers: {
             "Accept": "application/json",
-            "Authorization": "Bearer $token", // إرسال التوكن للتحقق من هُوية المستخدم
+            "Authorization": "Bearer $token",
           },
         ),
       );
@@ -253,6 +253,58 @@ class AuthController {
         return {"success": true, "data": response.data['data'], "message": response.data['message']};
       }
       return {"success": false, "message": "حدث خطأ غير متوقع"};
+    } on DioException catch (e) {
+      return _handleDioError(e);
+    }
+  }
+
+  // 1. تابع حذف حساب المستخدم العادي
+  Future<Map<String, dynamic>> deleteUserAccount() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("auth_token");
+
+      Response response = await _dio.delete(
+        "$baseUrl/user/delete-account",
+        options: Options(
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        await logout(); // مسح البيانات المخزنة محلياً عند نجاح الحذف
+        return {"success": true, "message": response.data['message']};
+      }
+      return {"success": false, "message": "فشل حذف الحساب"};
+    } on DioException catch (e) {
+      return _handleDioError(e);
+    }
+  }
+
+  // 2. تابع حذف حساب المحامي
+  Future<Map<String, dynamic>> deleteLawyerAccount() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString("auth_token");
+
+      Response response = await _dio.delete(
+        "$baseUrl/lawyer/delete-account",
+        options: Options(
+          headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer $token",
+          },
+        ),
+      );
+
+      if (response.statusCode == 200) {
+        await logout(); // مسح البيانات المخزنة محلياً عند نجاح الحذف
+        return {"success": true, "message": response.data['message']};
+      }
+      return {"success": false, "message": "فشل حذف الحساب"};
     } on DioException catch (e) {
       return _handleDioError(e);
     }

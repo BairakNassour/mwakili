@@ -410,42 +410,144 @@ class _LawyerProfileViewState extends State<LawyerProfileView> {
           ),
           const SizedBox(height: 16),
 
-          Theme(
-            data: Theme.of(context).copyWith(canvasColor: Colors.transparent),
-            child: SizedBox(
-              width: 140,
-              height: 38,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF7A6021),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const EditProfileView(),
+          Column(
+            children: [
+              // 1. زر تعديل الملف الشخصي
+              Theme(
+                data: Theme.of(
+                  context,
+                ).copyWith(canvasColor: Colors.transparent),
+                child: SizedBox(
+                  width: 140,
+                  height: 38,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF7A6021),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  );
-                },
-                child: const Text(
-                  'تعديل الملف',
-                  style: TextStyle(
-                    color: AppColors.textWhite,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfileView(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'تعديل الملف',
+                      style: TextStyle(
+                        color: AppColors.textWhite,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
+
+              const SizedBox(height: 12), // مسافة بين الزرين
+              // 2. زر حذف حساب المحامي
+              Theme(
+                data: Theme.of(
+                  context,
+                ).copyWith(canvasColor: Colors.transparent),
+                child: SizedBox(
+                  width: 140,
+                  height: 38,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          Colors.red.shade700, // لون أحمر مخصص للحذف
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () => _showDeleteConfirmationDialog(context),
+                    child: const Text(
+                      'حذف الحساب',
+                      style: TextStyle(
+                        color: AppColors.textWhite,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+void _showDeleteConfirmationDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (dialogContext) => AlertDialog(
+      title: const Text('تأكيد حذف الحساب'),
+      content: const Text(
+        'هل أنت تأكد من رغبتك في حذف الحساب؟ سيتم مسح كافة البيانات والوثائق بشكل نهائي.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(dialogContext),
+          child: const Text('إلغاء'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+          onPressed: () async {
+            Navigator.pop(dialogContext); // إغلاق النافذة
 
+            // عرض مؤشر التحميل
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            );
+
+            // استدعاء تابع الحذف من AuthController
+            final result = await AuthController().deleteLawyerAccount();
+
+            if (context.mounted) {
+              Navigator.pop(context); // إخفاء التحميل
+
+              if (result['success']) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(result['message'] ?? 'تم حذف الحساب بنجاح'),
+                  ),
+                );
+
+                // التوجيه إلى شاشة تسجيل الدخول ومسح الشاشات السابقة
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/login', // استبدلها باسم راوت شاشة الدخول لديك
+                  (route) => false,
+                );
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      result['message'] ?? 'حدث خطأ أثناء حذف الحساب',
+                    ),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
+            }
+          },
+          child: const Text(
+            'حذف',
+            style: TextStyle(color: Colors.white),
+          ),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildStatisticsSection(BuildContext context) {
     return Column(
       children: [

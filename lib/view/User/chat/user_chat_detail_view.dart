@@ -232,14 +232,14 @@ class _UserChatDetailViewState extends State<UserChatDetailView> {
               ],
             ),
           ),
-          IconButton(
-            icon: const Icon(Icons.phone_in_talk_outlined, color: AppColors.primaryGold, size: 22),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.more_vert_rounded, color: AppColors.textWhite, size: 22),
-            onPressed: () {},
-          ),
+          // IconButton(
+          //   icon: const Icon(Icons.phone_in_talk_outlined, color: AppColors.primaryGold, size: 22),
+          //   onPressed: () {},
+          // ),
+          // IconButton(
+          //   icon: const Icon(Icons.more_vert_rounded, color: AppColors.textWhite, size: 22),
+          //   onPressed: () {},
+          // ),
         ],
       ),
     );
@@ -300,7 +300,7 @@ class _UserChatDetailViewState extends State<UserChatDetailView> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.sentiment_satisfied_alt_outlined, color: AppColors.textLightGray.withOpacity(0.4)),
+                  // Icon(Icons.sentiment_satisfied_alt_outlined, color: AppColors.textLightGray.withOpacity(0.4)),
                   const SizedBox(width: 10),
                   Expanded(
                     child: TextField(
@@ -313,7 +313,7 @@ class _UserChatDetailViewState extends State<UserChatDetailView> {
                       ),
                     ),
                   ),
-                  Icon(Icons.attach_file_rounded, color: AppColors.textLightGray.withOpacity(0.4)),
+                  // Icon(Icons.attach_file_rounded, color: AppColors.textLightGray.withOpacity(0.4)),
                 ],
               ),
             ),
