@@ -19,7 +19,7 @@ class AuthController {
         data: {
           "name": name,
           "email": email,
-          "fcm_token": phone.toString(),
+          "fcm_token": "0000".toString(),
           "phone": phone,
           "password": password,
         },
@@ -55,7 +55,7 @@ class AuthController {
         "name": name,
         "email": email,
         "phone": phone,
-        "fcm_token": phone.toString(),
+        "fcm_token": "0000".toString(),
         "license_number": licenseNumber,
         "consultation_price": consultationPrice,
         "experience_years": experienceYears,

@@ -164,10 +164,9 @@ void _loadLawyerData() async {
               validator: (val) => val!.isEmpty ? 'هذا الحقل مطلوب' : null,
             ),
             _buildTextField(
-              label: 'رقم الهاتف', 
+              label: ' (اختياري)رقم الهاتف', 
               controller: _phoneController,
               keyboardType: TextInputType.phone,
-              validator: (val) => val!.isEmpty ? 'هذا الحقل مطلوب' : null,
             ),
             _buildTextField(
               label: 'البريد الإلكتروني', 

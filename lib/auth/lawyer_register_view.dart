@@ -199,10 +199,9 @@ void _handleLawyerRegister() async {
                           const SizedBox(height: 8),
                           _buildTextField(
                             controller: _phoneController, 
-                            hintText: '05XXXXXXXX', 
+                            hintText: '05XXXXXXXX(اختياري)', 
                             icon: Icons.phone_android_outlined, 
                             keyboardType: TextInputType.phone,
-                            validator: (value) => value == null || value.trim().isEmpty ? 'الرجاء إدخال رقم الهاتف' : null,
                           ),
                           const SizedBox(height: 16),
 

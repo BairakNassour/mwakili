@@ -181,11 +181,10 @@ class _ClientProfileViewState extends State<ClientProfileView> {
               validator: (value) => !value!.contains('@') ? 'البريد غير صالح' : null,
             ),
             _buildEditableActionField(
-              label: 'رقم الهاتف الموثق',
+              label: '(اختياري)رقم الهاتف الموثق',
               controller: _phoneController,
               leadingIcon: Icons.phone_android_rounded,
               keyboardType: TextInputType.phone,
-              validator: (value) => value!.isEmpty ? 'رقم الهاتف مطلوب' : null,
             ),
 
             if (!_isEditing)

@@ -142,12 +142,7 @@ class _RegisterViewUserState extends State<RegisterViewUser> {
                             hintText: '+966 5X XXX XXXX',
                             icon: Icons.phone_android_outlined,
                             keyboardType: TextInputType.phone,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'الرجاء إدخال رقم الهاتف';
-                              }
-                              return null;
-                            },
+                           
                           ),
                           const SizedBox(height: 20),
 
