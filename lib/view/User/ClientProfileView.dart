@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mwakili/auth/UserTypeView.dart';
 import 'package:mwakili/component/app_colors.dart';
 import 'package:mwakili/controller/ProfileController.dart';
+import 'package:mwakili/controller/auth_controller.dart';
 import 'package:mwakili/model/UserModel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,8 +15,8 @@ class ClientProfileView extends StatefulWidget {
 
 class _ClientProfileViewState extends State<ClientProfileView> {
   final ProfileController _profileController = ProfileController();
-  
-  UserModel? _user; 
+
+  UserModel? _user;
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -24,13 +25,13 @@ class _ClientProfileViewState extends State<ClientProfileView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
-  bool _isEditing = false; 
-  bool _isSaving = false;  
+  bool _isEditing = false;
+  bool _isSaving = false;
 
   @override
   void initState() {
     super.initState();
-    _fetchProfileData(); 
+    _fetchProfileData();
   }
 
   void _fetchProfileData() async {
@@ -67,7 +68,7 @@ class _ClientProfileViewState extends State<ClientProfileView> {
   void _saveProfileChanges() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isSaving = true);
-      
+
       final result = await _profileController.updateUserProfile(
         name: _nameController.text.trim(),
         phone: _phoneController.text.trim(),
@@ -78,15 +79,21 @@ class _ClientProfileViewState extends State<ClientProfileView> {
 
       if (result['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message']), backgroundColor: Colors.green),
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.green,
+          ),
         );
         setState(() {
           _isEditing = false;
         });
-        _fetchProfileData(); 
+        _fetchProfileData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message']), backgroundColor: Colors.redAccent),
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.redAccent,
+          ),
         );
       }
     }
@@ -106,10 +113,9 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             child: Column(
               children: [
                 _buildTopAppBar(),
-                if (_isSaving) const LinearProgressIndicator(color: AppColors.primaryGold),
-                Expanded(
-                  child: _buildBodyContent(),
-                ),
+                if (_isSaving)
+                  const LinearProgressIndicator(color: AppColors.primaryGold),
+                Expanded(child: _buildBodyContent()),
               ],
             ),
           ),
@@ -130,7 +136,11 @@ class _ClientProfileViewState extends State<ClientProfileView> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 48),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: Colors.redAccent,
+              size: 48,
+            ),
             const SizedBox(height: 12),
             Text(
               _errorMessage ?? 'فشل الاتصال بالخادم الداخلي',
@@ -138,8 +148,11 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             ),
             TextButton(
               onPressed: _fetchProfileData,
-              child: const Text('إعادة المحاولة', style: TextStyle(color: AppColors.primaryGold)),
-            )
+              child: const Text(
+                'إعادة المحاولة',
+                style: TextStyle(color: AppColors.primaryGold),
+              ),
+            ),
           ],
         ),
       );
@@ -155,15 +168,22 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             const SizedBox(height: 10),
             // _buildAdvancedAvatar(),
             const SizedBox(height: 16),
-            
+
             Text(
               _user!.name,
-              style: const TextStyle(color: AppColors.textWhite, fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                color: AppColors.textWhite,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               'حساب عميل نشط',
-              style: TextStyle(color: AppColors.textLightGray.withOpacity(0.4), fontSize: 12),
+              style: TextStyle(
+                color: AppColors.textLightGray.withOpacity(0.4),
+                fontSize: 12,
+              ),
             ),
             const SizedBox(height: 35),
 
@@ -178,7 +198,8 @@ class _ClientProfileViewState extends State<ClientProfileView> {
               controller: _emailController,
               leadingIcon: Icons.mail_outline_rounded,
               keyboardType: TextInputType.emailAddress,
-              validator: (value) => !value!.contains('@') ? 'البريد غير صالح' : null,
+              validator: (value) =>
+                  !value!.contains('@') ? 'البريد غير صالح' : null,
             ),
             _buildEditableActionField(
               label: '(اختياري)رقم الهاتف الموثق',
@@ -194,11 +215,29 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                 leadingIcon: Icons.folder_open_rounded,
                 trailingIcon: Icons.arrow_forward_ios_rounded,
               ),
-            
+
             const SizedBox(height: 30),
-            
+
             _isEditing ? _buildEditingButtons() : _buildLogoutButton(context),
-            
+
+            const SizedBox(height: 15),
+
+            // زر حذف الحساب
+            SizedBox(
+              width: double.infinity,
+              child: TextButton.icon(
+                onPressed: () => _showDeleteAccountDialog(context),
+                icon: const Icon(Icons.delete_forever, color: Colors.red),
+                label: const Text(
+                  'حذف الحساب نهائياً',
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+
             const SizedBox(height: 25),
           ],
         ),
@@ -214,11 +253,19 @@ class _ClientProfileViewState extends State<ClientProfileView> {
         children: [
           const Text(
             'الملف الشخصي',
-            style: TextStyle(color: AppColors.textWhite, fontSize: 16, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: AppColors.textWhite,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           if (!_isEditing && !_isLoading && _user != null)
             IconButton(
-              icon: const Icon(Icons.edit_rounded, color: AppColors.primaryGold, size: 22),
+              icon: const Icon(
+                Icons.edit_rounded,
+                color: AppColors.primaryGold,
+                size: 22,
+              ),
               onPressed: () {
                 setState(() => _isEditing = true);
               },
@@ -236,7 +283,10 @@ class _ClientProfileViewState extends State<ClientProfileView> {
           padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.primaryGold.withOpacity(0.4), width: 1.5),
+            border: Border.all(
+              color: AppColors.primaryGold.withOpacity(0.4),
+              width: 1.5,
+            ),
           ),
           child: CircleAvatar(
             radius: 50,
@@ -275,10 +325,12 @@ class _ClientProfileViewState extends State<ClientProfileView> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F314D), 
+        color: const Color(0xFF1F314D),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: _isEditing ? AppColors.primaryGold.withOpacity(0.6) : AppColors.textWhite.withOpacity(0.05), 
+          color: _isEditing
+              ? AppColors.primaryGold.withOpacity(0.6)
+              : AppColors.textWhite.withOpacity(0.05),
           width: 1,
         ),
       ),
@@ -289,13 +341,20 @@ class _ClientProfileViewState extends State<ClientProfileView> {
           Expanded(
             child: TextFormField(
               controller: controller,
-              enabled: _isEditing, 
+              enabled: _isEditing,
               keyboardType: keyboardType,
               validator: validator,
-              style: const TextStyle(color: AppColors.textWhite, fontSize: 13, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: AppColors.textWhite,
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
               decoration: InputDecoration(
                 labelText: label,
-                labelStyle: TextStyle(color: AppColors.textLightGray.withOpacity(0.4), fontSize: 12),
+                labelStyle: TextStyle(
+                  color: AppColors.textLightGray.withOpacity(0.4),
+                  fontSize: 12,
+                ),
                 border: InputBorder.none,
                 isDense: true,
                 contentPadding: const EdgeInsets.symmetric(vertical: 8),
@@ -317,9 +376,12 @@ class _ClientProfileViewState extends State<ClientProfileView> {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: const Color(0xFF1F314D), 
+        color: const Color(0xFF1F314D),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.textWhite.withOpacity(0.05), width: 1),
+        border: Border.all(
+          color: AppColors.textWhite.withOpacity(0.05),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -331,12 +393,19 @@ class _ClientProfileViewState extends State<ClientProfileView> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(color: AppColors.textLightGray.withOpacity(0.4), fontSize: 11),
+                  style: TextStyle(
+                    color: AppColors.textLightGray.withOpacity(0.4),
+                    fontSize: 11,
+                  ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   value,
-                  style: const TextStyle(color: AppColors.textWhite, fontSize: 13, fontWeight: FontWeight.w500),
+                  style: const TextStyle(
+                    color: AppColors.textWhite,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),
@@ -360,10 +429,18 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primaryGold,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: _isSaving ? null : _saveProfileChanges,
-              child: const Text('حفظ التغييرات', style: TextStyle(color: AppColors.backgroundNavy, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'حفظ التغييرات',
+                style: TextStyle(
+                  color: AppColors.backgroundNavy,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ),
         ),
@@ -374,7 +451,9 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             child: OutlinedButton(
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: AppColors.textLightGray),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
               onPressed: _isSaving
                   ? null
@@ -388,7 +467,10 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                         }
                       });
                     },
-              child: const Text('إلغاء', style: TextStyle(color: AppColors.textWhite)),
+              child: const Text(
+                'إلغاء',
+                style: TextStyle(color: AppColors.textWhite),
+              ),
             ),
           ),
         ),
@@ -415,18 +497,33 @@ class _ClientProfileViewState extends State<ClientProfileView> {
                 textDirection: TextDirection.rtl,
                 child: AlertDialog(
                   backgroundColor: const Color(0xFF1F314D),
-                  title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.white)),
-                  content: const Text('هل أنت متأكد من رغبتك في تسجيل الخروج من الحساب؟', style: TextStyle(color: Colors.white70)),
+                  title: const Text(
+                    'تسجيل الخروج',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  content: const Text(
+                    'هل أنت متأكد من رغبتك في تسجيل الخروج من الحساب؟',
+                    style: TextStyle(color: Colors.white70),
+                  ),
                   actions: [
                     TextButton(
-                      child: const Text('إلغاء', style: TextStyle(color: Colors.white60)),
+                      child: const Text(
+                        'إلغاء',
+                        style: TextStyle(color: Colors.white60),
+                      ),
                       onPressed: () => Navigator.of(dialogContext).pop(),
                     ),
                     ElevatedButton(
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFE74C3C)),
-                      child: const Text('خروج', style: TextStyle(color: Colors.white)),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFE74C3C),
+                      ),
+                      child: const Text(
+                        'خروج',
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: () async {
-                        final SharedPreferences prefs = await SharedPreferences.getInstance();
+                        final SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
                         await prefs.remove('remember_me');
                         await prefs.remove('saved_email');
                         await prefs.remove('saved_password');
@@ -460,11 +557,94 @@ class _ClientProfileViewState extends State<ClientProfileView> {
             SizedBox(width: 8),
             Text(
               'تسجيل الخروج من الحساب',
-              style: TextStyle(color: Color(0xFFE74C3C), fontSize: 13, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Color(0xFFE74C3C),
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _showDeleteAccountDialog(BuildContext context) async {
+    bool isDeleting = false;
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // لمنع الإغلاق بالضغط خارج النافذة أثناء الحذف
+      builder: (BuildContext dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('تأكيد حذف الحساب'),
+              content: isDeleting
+                  ? const Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 15),
+                        Text('جاري حذف الحساب...'),
+                      ],
+                    )
+                  : const Text(
+                      'هل أنت تأكد من رغبتك في حذف الحساب نهائياً؟ لا يمكن التراجع عن هذا الإجراء بعد إتمامه.',
+                    ),
+              actions: isDeleting
+                  ? []
+                  : [
+                      TextButton(
+                        child: const Text('إلغاء'),
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () async {
+                          setState(() {
+                            isDeleting = true;
+                          });
+
+                          final result = await AuthController()
+                              .deleteUserAccount();
+
+                          if (dialogContext.mounted) {
+                            Navigator.of(dialogContext).pop(); // إغلاق النافذة
+                          }
+
+                          if (result['success'] == true) {
+                            // التوجيه لشاشة تسجيل الدخول ومسح المكدس
+                            if (context.mounted) {
+                              Navigator.of(context).pushNamedAndRemoveUntil(
+                                '/login', // استبدلها باسم مسار تسجيل الدخول لديك
+                                (route) => false,
+                              );
+                            }
+                          } else {
+                            // عرض رسالة الخطأ
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    result['message'] ?? 'فشل حذف الحساب',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text('حذف الحساب'),
+                      ),
+                    ],
+            );
+          },
+        );
+      },
     );
   }
 }
